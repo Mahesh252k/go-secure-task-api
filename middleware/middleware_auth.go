@@ -16,13 +16,13 @@ func AuthMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		taskID := c.Param("id")
 		AuthHead = strings.TrimPrefix(AuthHead, "Bearer ")
-		isValid, err := repository.ValidateToken(AuthHead, taskID)
-		if err != nil || !isValid {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		token, err := repository.ValidateJWT(AuthHead)
+		if err != nil || !token.Valid {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
 			c.Abort()
 			return
 		}
+		c.Next()
 	}
 }

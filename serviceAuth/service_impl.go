@@ -3,9 +3,7 @@ package serviceauth
 import (
 	"CRUD_API_PROJ/models"
 	"CRUD_API_PROJ/repository"
-	"crypto/sha256"
 	"encoding/base64"
-	"encoding/hex"
 	"fmt"
 
 	"gorm.io/gorm"
@@ -48,7 +46,9 @@ func (s *serviceConcrete) Login(userName, password string) (string, error) {
 		return "", fmt.Errorf("invalid credentials")
 	}
 
-	token := sha256.Sum256([]byte(userName + user.Password))
-	tok := hex.EncodeToString(token[:])
-	return tok, nil
+	token, err := repository.GenerateJWT(userName)
+	if err != nil {
+		return "", fmt.Errorf("failed to generate token: %v", err)
+	}
+	return token, nil
 }
