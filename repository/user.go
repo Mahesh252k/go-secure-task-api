@@ -12,6 +12,7 @@ import (
 type UserRepo struct {
 	UserName string `gorm:"primaryKey"`
 	Password string `gorm:"not null"`
+	Role     string `gorm:"not null"`
 }
 
 func CreateUserTable() {
@@ -36,6 +37,15 @@ func GetUser(userName string) (*UserRepo, error) {
 		return nil, result.Error
 	}
 	return &user, nil
+}
+
+func GetUserRoles(userName string) (string, error) {
+	var user UserRepo
+	result := GetDB().First(&user, "user_name = ?", userName)
+	if result.Error != nil {
+		return "", result.Error
+	}
+	return user.Role, nil
 }
 
 func ValidateUser(userName, password string) bool {
