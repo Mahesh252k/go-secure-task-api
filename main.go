@@ -33,12 +33,14 @@ func main() {
 	route.POST("/login", loginHandler.Login)
 
 	protected := route.Group("/")
-
-	protected.GET("/tasks", taskHandler.GetAllTasks)
-	protected.GET("/task/:id", taskHandler.GetTask)
-	protected.PUT("/task/:id", middleware.WritterMiddleware(), taskHandler.UpdateTask)
-	protected.PATCH("/task/:id", middleware.WritterMiddleware(), taskHandler.PatchTask)
-	protected.POST("/task", middleware.AdminMiddleware(), taskHandler.CreateTask)
-	protected.DELETE("/task/:id", middleware.AdminMiddleware(), taskHandler.DeleteTask)
+	protected.Use(middleware.AuthMiddleware())
+	{
+		protected.GET("/task/:id", taskHandler.GetTask)
+		protected.GET("/tasks", taskHandler.GetAllTasks)
+		protected.PUT("/task/:id", taskHandler.UpdateTask)
+		protected.PATCH("/task/:id", taskHandler.PatchTask)
+		protected.DELETE("/task/:id", taskHandler.DeleteTask)
+	}
+	route.POST("/task", taskHandler.CreateTask)
 	route.Run(":8080")
 }

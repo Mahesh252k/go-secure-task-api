@@ -20,17 +20,9 @@ func NewServiceConcrete() AuthService {
 }
 
 func (s *serviceConcrete) Register(request models.User) error {
-	role := request.Role
-	if role == "" {
-		role = "user"
-	}
-	if role != "admin" && role != "user" && role != "writter" {
-		return fmt.Errorf("invalid role: %s", role)
-	}
 	err := repository.CreateUser(&repository.UserRepo{
 		UserName: request.UserName,
 		Password: request.Password,
-		Role:     role,
 	})
 	if err != nil {
 		return err
@@ -50,16 +42,11 @@ func (s *serviceConcrete) Login(userName, password string) (string, error) {
 		return "", err
 	}
 
-	role, err := repository.GetUserRoles(userName)
-	if err != nil {
-		return "", err
-	}
-
 	if string(pass) != password {
 		return "", fmt.Errorf("invalid credentials")
 	}
 
-	token, err := repository.GenerateJWT(userName, role)
+	token, err := repository.GenerateJWT(userName)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate token: %v", err)
 	}
